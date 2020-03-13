@@ -1,0 +1,4 @@
+{
+  "MetaData": "$time_series_data_meta_data",
+  "TimeSeries": ["$TimeSeriesDaily1"]
+}
