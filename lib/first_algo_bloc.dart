@@ -41,7 +41,6 @@ class FirstAlgoBloc{
 
     var info= json.decode(response.body);
 
-    print(info["Time Series (Daily)"]);
 
 
     _subject.sink.add(Stock.fromJson(info));
@@ -52,12 +51,13 @@ class FirstAlgoBloc{
 
 
   }
-  Future<SimpleMovingAverage> getSMA(String function, String symbol, String interval, String timePeriod, String seriesType) async{
-    String query = "?function=$function&symbol=$symbol&interval=$interval&time_period=$timePeriod&series_type=$seriesType%apikey=$API_KEY";
-    final res = await http.get(basePath+query);
+  Future<SimpleMovingAverage> callSMA(String function, String symbol, String interval, String timePeriod, String seriesType) async{
+    String query = "https://www.alphavantage.co/query?function=$function&symbol=$symbol&interval=$interval&time_period=$timePeriod&series_type=$seriesType&apikey=U4YYPDBZMJWKZUL8";
+    final res = await http.get(query);
     var info = json.decode(res.body);
     _smaSubject.sink.add(SimpleMovingAverage.fromJson(info));
-    return SimpleMovingAverage.fromJson(info);
+
+    print(info);
 
 
 

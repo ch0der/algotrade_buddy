@@ -3,6 +3,7 @@ import 'package:algotrade_buddy/models/details.dart';
 import 'package:flutter/material.dart';
 
 import 'package:algotrade_buddy/models/stockMode2.dart';
+import 'package:algotrade_buddy/models/SMA.dart';
 
 class FirstAlgo extends StatefulWidget {
   @override
@@ -12,17 +13,16 @@ class FirstAlgo extends StatefulWidget {
 class _FirstAlgoState extends State<FirstAlgo> {
   FirstAlgoBloc bloc = FirstAlgoBloc();
 
-  String dropDownDuration = 'Daily';
+  String dropDownDuration = 'daily';
   String dropDownStock = 'MSFT';
   String dropDownTimePeriod = '200';
-  String dropDownSeriesType = 'Close';
+  String dropDownSeriesType = 'close';
   String dropDownIndicator = 'SMA';
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    bloc.firstCall();
   }
 
   @override
@@ -43,14 +43,57 @@ class _FirstAlgoState extends State<FirstAlgo> {
       children: <Widget>[
         Row(
           children: <Widget>[
-           dropDownItemsIndicator(),
+            dropDownItemsIndicator(),
             dropDownItemsDuration(),
             dropDownItemsSeriesType(),
             dropDownItemsStocks(),
           ],
         ),
         dropDownItemsTimePeriod(),
+        submitTest(),
+        smaList(),
       ],
+    );
+  }
+
+  smaList() {
+    return Container(
+      height: 200,
+      width: 200,
+      child: StreamBuilder<SimpleMovingAverage>(
+        stream: bloc.sma,
+          builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          Map values = snapshot.data.technicalAnalysisSma;
+          List dates = values.keys.toList();
+          List<TechnicalAnalysisSma> testList = values.values.toList();
+          return Container(
+            child: ListView.builder(
+              itemCount: values.length,
+              itemBuilder: (context, index) {
+                String str = testList[index].sma;
+                var price = double.parse(str).toStringAsFixed(2);
+                double _price = double.parse(price);
+
+                return ListTile(
+                  title: Text("\n\$$_price"),
+                );
+              },
+            ),
+          );
+        } else {return Container(child: Text('..waiting'),);}
+      }),
+    );
+  }
+
+  submitTest() {
+    return Container(
+      height: 20,
+      width: 40,
+      child: RaisedButton(onPressed: () {
+        bloc.callSMA(dropDownIndicator, dropDownStock, dropDownDuration,
+            dropDownTimePeriod, dropDownSeriesType);
+      }),
     );
   }
 
@@ -59,38 +102,38 @@ class _FirstAlgoState extends State<FirstAlgo> {
   }
 
   dropDownSize() {
-    return screenSize(context).width*.25;
+    return screenSize(context).width * .25;
   }
 
   dropDownItemsDuration() {
     return SizedBox(
-      width: dropDownSize(),
+        width: dropDownSize(),
         child: DropdownButtonFormField(
-      decoration: InputDecoration(
-        labelText: 'Interval',
-      ),
-      value: dropDownDuration,
-      items: [
-        "1min",
-        "5min",
-        "15min",
-        "30min",
-        "60min",
-        "Daily",
-        "Weekly",
-        "Monthly"
-      ]
-          .map((String value) => DropdownMenuItem(
-                value: value,
-                child: Text(value),
-              ))
-          .toList(),
-      onChanged: (String newValue) {
-        setState(() {
-          dropDownDuration = newValue;
-        });
-      },
-    ));
+          decoration: InputDecoration(
+            labelText: 'Interval',
+          ),
+          value: dropDownDuration,
+          items: [
+            "1min",
+            "5min",
+            "15min",
+            "30min",
+            "60min",
+            "daily",
+            "weekly",
+            "monthly"
+          ]
+              .map((String value) => DropdownMenuItem(
+                    value: value,
+                    child: Text(value),
+                  ))
+              .toList(),
+          onChanged: (String newValue) {
+            setState(() {
+              dropDownDuration = newValue;
+            });
+          },
+        ));
   }
 
   dropDownItemsTimePeriod() {
@@ -150,7 +193,7 @@ class _FirstAlgoState extends State<FirstAlgo> {
             labelText: 'Stock',
           ),
           value: dropDownSeriesType,
-          items: ["Close", "Open", "High", "Low"]
+          items: ["close", "Open", "High", "Low"]
               .map((String value) => DropdownMenuItem(
                     value: value,
                     child: Text(value),
@@ -194,7 +237,6 @@ class _FirstAlgoState extends State<FirstAlgo> {
           if (snapshot.hasData) {
             Map values = snapshot.data.timeSeriesDaily;
             List<TimeSeriesDaily> testList = values.values.toList();
-            print(testList);
             return Container(
               child: ListView.builder(
                 itemCount: values.length,

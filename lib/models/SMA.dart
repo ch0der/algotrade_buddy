@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 SimpleMovingAverage simpleMovingAverageFromJson(String str) => SimpleMovingAverage.fromJson(json.decode(str));
@@ -7,84 +6,76 @@ String simpleMovingAverageToJson(SimpleMovingAverage data) => json.encode(data.t
 
 class SimpleMovingAverage {
   MetaData metaData;
-  Map<String, TimeSeriesDaily> timeSeriesDaily;
+  Map<String, TechnicalAnalysisSma> technicalAnalysisSma;
 
   SimpleMovingAverage({
     this.metaData,
-    this.timeSeriesDaily,
+    this.technicalAnalysisSma,
   });
 
   factory SimpleMovingAverage.fromJson(Map<String, dynamic> json) => SimpleMovingAverage(
     metaData: MetaData.fromJson(json["Meta Data"]),
-    timeSeriesDaily: Map.from(json["Time Series (Daily)"]).map((k, v) => MapEntry<String, TimeSeriesDaily>(k, TimeSeriesDaily.fromJson(v))),
+    technicalAnalysisSma: Map.from(json["Technical Analysis: SMA"]).map((k, v) => MapEntry<String, TechnicalAnalysisSma>(k, TechnicalAnalysisSma.fromJson(v))),
   );
 
   Map<String, dynamic> toJson() => {
     "Meta Data": metaData.toJson(),
-    "Time Series (Daily)": Map.from(timeSeriesDaily).map((k, v) => MapEntry<String, dynamic>(k, v.toJson())),
+    "Technical Analysis: SMA": Map.from(technicalAnalysisSma).map((k, v) => MapEntry<String, dynamic>(k, v.toJson())),
   };
 }
 
 class MetaData {
-  String the1Information;
-  String the2Symbol;
+  String the1Symbol;
+  String the2Indicator;
   DateTime the3LastRefreshed;
-  String the4OutputSize;
-  String the5TimeZone;
+  String the4Interval;
+  int the5TimePeriod;
+  String the6SeriesType;
+  String the7TimeZone;
 
   MetaData({
-    this.the1Information,
-    this.the2Symbol,
+    this.the1Symbol,
+    this.the2Indicator,
     this.the3LastRefreshed,
-    this.the4OutputSize,
-    this.the5TimeZone,
+    this.the4Interval,
+    this.the5TimePeriod,
+    this.the6SeriesType,
+    this.the7TimeZone,
   });
 
   factory MetaData.fromJson(Map<String, dynamic> json) => MetaData(
-    the1Information: json["1. Information"],
-    the2Symbol: json["2. Symbol"],
-    the3LastRefreshed: DateTime.parse(json["3. Last Refreshed"]),
-    the4OutputSize: json["4. Output Size"],
-    the5TimeZone: json["5. Time Zone"],
+    the1Symbol: json["1: Symbol"],
+    the2Indicator: json["2: Indicator"],
+    the3LastRefreshed: DateTime.parse(json["3: Last Refreshed"]),
+    the4Interval: json["4: Interval"],
+    the5TimePeriod: json["5: Time Period"],
+    the6SeriesType: json["6: Series Type"],
+    the7TimeZone: json["7: Time Zone"],
   );
 
   Map<String, dynamic> toJson() => {
-    "1. Information": the1Information,
-    "2. Symbol": the2Symbol,
-    "3. Last Refreshed": "${the3LastRefreshed.year.toString().padLeft(4, '0')}-${the3LastRefreshed.month.toString().padLeft(2, '0')}-${the3LastRefreshed.day.toString().padLeft(2, '0')}",
-    "4. Output Size": the4OutputSize,
-    "5. Time Zone": the5TimeZone,
+    "1: Symbol": the1Symbol,
+    "2: Indicator": the2Indicator,
+    "3: Last Refreshed": the3LastRefreshed.toIso8601String(),
+    "4: Interval": the4Interval,
+    "5: Time Period": the5TimePeriod,
+    "6: Series Type": the6SeriesType,
+    "7: Time Zone": the7TimeZone,
   };
 }
 
-class TimeSeriesDaily {
-  String the1Open;
-  String the2High;
-  String the3Low;
-  String the4Close;
-  String the5Volume;
+class TechnicalAnalysisSma {
+  String sma;
 
-  TimeSeriesDaily({
-    this.the1Open,
-    this.the2High,
-    this.the3Low,
-    this.the4Close,
-    this.the5Volume,
+  TechnicalAnalysisSma({
+    this.sma,
   });
 
-  factory TimeSeriesDaily.fromJson(Map<String, dynamic> json) => TimeSeriesDaily(
-    the1Open: json["1. open"],
-    the2High: json["2. high"],
-    the3Low: json["3. low"],
-    the4Close: json["4. close"],
-    the5Volume: json["5. volume"],
+  factory TechnicalAnalysisSma.fromJson(Map<String, dynamic> json) => TechnicalAnalysisSma(
+    sma: json["SMA"],
   );
 
   Map<String, dynamic> toJson() => {
-    "1. open": the1Open,
-    "2. high": the2High,
-    "3. low": the3Low,
-    "4. close": the4Close,
-    "5. volume": the5Volume,
+    "SMA": sma,
   };
 }
