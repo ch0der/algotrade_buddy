@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'API_KEY.dart' show API_KEY;
 import 'package:http/http.dart' as http;
 import 'models/stockMode2.dart';
+import 'models/SMA.dart';
 
 class FirstAlgoBloc{
 
@@ -15,14 +16,17 @@ class FirstAlgoBloc{
 
   final _controller = StreamController.broadcast();
   final _subject = BehaviorSubject<Stock>();
-
   Stream<Stock> get subject => _subject.stream;
-
   Function(Stock) get addSubject => _subject.sink.add;
+
+  final _smaSubject = BehaviorSubject<SimpleMovingAverage>();
+  Stream<SimpleMovingAverage> get sma => _smaSubject.stream;
+  Function(SimpleMovingAverage) get addSMA => _smaSubject.sink.add;
 
   dispose(){
     _controller.close();
     _subject.close();
+    _smaSubject.close();
   }
 
   FirstAlgoBloc(){
@@ -48,6 +52,18 @@ class FirstAlgoBloc{
 
 
   }
+  Future<SimpleMovingAverage> getSMA(String function, String symbol, String interval, String timePeriod, String seriesType) async{
+    String query = "?function=$function&symbol=$symbol&interval=$interval&time_period=$timePeriod&series_type=$seriesType%apikey=$API_KEY";
+    final res = await http.get(basePath+query);
+    var info = json.decode(res.body);
+    _smaSubject.sink.add(SimpleMovingAverage.fromJson(info));
+    return SimpleMovingAverage.fromJson(info);
+
+
+
+
+  }
+
 
 
 }
