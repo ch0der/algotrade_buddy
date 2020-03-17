@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:algotrade_buddy/models/stockMode2.dart';
 import 'package:algotrade_buddy/models/SMA.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
+import 'dart:math' as math;
 
 class FirstAlgo extends StatefulWidget {
   @override
@@ -15,13 +17,18 @@ class _FirstAlgoState extends State<FirstAlgo> {
 
   String dropDownDuration = 'daily';
   String dropDownStock = 'MSFT';
-  String dropDownTimePeriod = '200';
+  String dropDownTimePeriod = '5';
   String dropDownSeriesType = 'close';
   String dropDownIndicator = 'SMA';
+  List<SMASimple> itemsTest = [
+    SMASimple('1', 5, 1),
+    SMASimple('2', 1, 2),
+    SMASimple('3', 3, 3)
+  ];
+  int indexTest = 3;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
@@ -52,6 +59,28 @@ class _FirstAlgoState extends State<FirstAlgo> {
         dropDownItemsTimePeriod(),
         submitTest(),
         smaList(),
+        StreamBuilder<Object>(
+            stream: bloc.sma,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Container(
+                  height: 300,
+                  child: charts.LineChart(
+                    _createSampleData(snapshot.data),
+                    animate: false,
+                    defaultInteractions: true,
+                  ),
+                );
+              } else
+                return Container(
+                  height: 300,
+                  child: charts.LineChart(
+                    _createSampleData(itemsTest),
+                    animate: false,
+                    defaultInteractions: true,
+                  ),
+                );
+            }),
       ],
     );
   }
@@ -60,29 +89,30 @@ class _FirstAlgoState extends State<FirstAlgo> {
     return Container(
       height: 200,
       width: 200,
-      child: StreamBuilder<SimpleMovingAverage>(
-        stream: bloc.sma,
+      child: StreamBuilder<List<SMASimple>>(
+          stream: bloc.sma,
           builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          Map values = snapshot.data.technicalAnalysisSma;
-          List dates = values.keys.toList();
-          List<TechnicalAnalysisSma> testList = values.values.toList();
-          return Container(
-            child: ListView.builder(
-              itemCount: values.length,
-              itemBuilder: (context, index) {
-                String str = testList[index].sma;
-                var price = double.parse(str).toStringAsFixed(2);
-                double _price = double.parse(price);
+            if (snapshot.hasData) {
+              List items = snapshot.data;
+              itemsTest = items.sublist(0, 100);
 
-                return ListTile(
-                  title: Text("\n\$$_price"),
-                );
-              },
-            ),
-          );
-        } else {return Container(child: Text('..waiting'),);}
-      }),
+              return Container(
+                child: ListView.builder(
+                  itemCount: 100,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text('${items[index].price}'),
+                      subtitle: Text(items[index].date),
+                    );
+                  },
+                ),
+              );
+            } else {
+              return Container(
+                child: Text('..waiting'),
+              );
+            }
+          }),
     );
   }
 
@@ -141,11 +171,11 @@ class _FirstAlgoState extends State<FirstAlgo> {
         width: dropDownSize(),
         child: DropdownButtonFormField(
           decoration: InputDecoration(
-            labelText: 'Interval',
+            labelText: 'Time Period',
           ),
           value: dropDownTimePeriod,
           items: [
-            "50",
+            "5",
             "100",
             "200",
             "500",
@@ -183,6 +213,23 @@ class _FirstAlgoState extends State<FirstAlgo> {
             });
           },
         ));
+  }
+
+  static List<charts.Series<SMASimple, int>> _createSampleData(
+      List<SMASimple> _list) {
+    final data = [
+      SMASimple('43', 343, 1),
+      SMASimple('47', 343, 2),
+    ];
+
+    return [
+      new charts.Series<SMASimple, int>(
+          id: 'Sales',
+          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+          domainFn: (SMASimple movement, _) => movement.count,
+          measureFn: (SMASimple price, _) => price.price,
+          data: _list)
+    ];
   }
 
   dropDownItemsSeriesType() {
@@ -258,4 +305,47 @@ class _FirstAlgoState extends State<FirstAlgo> {
       ),
     );
   }
+}
+
+class TestTimeSeriesChart extends StatefulWidget {
+  final List list;
+  final bool animate;
+
+  TestTimeSeriesChart(this.list, this.animate);
+
+  @override
+  _TestTimeSeriesChartState createState() => _TestTimeSeriesChartState();
+}
+
+class _TestTimeSeriesChartState extends State<TestTimeSeriesChart> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: charts.LineChart(widget.list, animate: widget.animate),
+    );
+  }
+}
+
+class TimeChart extends StatelessWidget {
+  final List list;
+  final bool animate;
+
+  TimeChart(this.list, {this.animate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: charts.LineChart(
+        list,
+        animate: animate,
+      ),
+    );
+  }
+}
+
+class LinearSales {
+  final int year;
+  final int sales;
+
+  LinearSales(this.year, this.sales);
 }

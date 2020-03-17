@@ -19,9 +19,9 @@ class FirstAlgoBloc{
   Stream<Stock> get subject => _subject.stream;
   Function(Stock) get addSubject => _subject.sink.add;
 
-  final _smaSubject = BehaviorSubject<SimpleMovingAverage>();
-  Stream<SimpleMovingAverage> get sma => _smaSubject.stream;
-  Function(SimpleMovingAverage) get addSMA => _smaSubject.sink.add;
+  final _smaSubject = BehaviorSubject<List<SMASimple>>();
+  Stream<List<SMASimple>> get sma => _smaSubject.stream;
+  Function(List<SMASimple>) get addSMA => _smaSubject.sink.add;
 
   dispose(){
     _controller.close();
@@ -52,18 +52,34 @@ class FirstAlgoBloc{
 
   }
   Future<SimpleMovingAverage> callSMA(String function, String symbol, String interval, String timePeriod, String seriesType) async{
-    String query = "https://www.alphavantage.co/query?function=$function&symbol=$symbol&interval=$interval&time_period=$timePeriod&series_type=$seriesType&apikey=U4YYPDBZMJWKZUL8";
+    String query = "https://www.alphavantage.co/query?function=$function&symbol=$symbol&interval=$interval&time_period=$timePeriod&outputsize=compact&series_type=$seriesType&apikey=U4YYPDBZMJWKZUL8";
     final res = await http.get(query);
     var info = json.decode(res.body);
-    _smaSubject.sink.add(SimpleMovingAverage.fromJson(info));
 
-    print(info);
+    Map values = SimpleMovingAverage.fromJson(info).technicalAnalysisSma;
+    List dates = values.keys.toList();
+    List<TechnicalAnalysisSma> testList = values.values.toList();
+
+    final List<SMASimple> items = List<SMASimple>.generate(values.length,(i)=> SMASimple(dates[i],double.parse(double.parse(testList[i].sma).toStringAsFixed(2)),-i));
+
+
+    _smaSubject.sink.add(items);
+
 
 
 
 
   }
 
+
+
+}
+class SMASimple{
+  final int count;
+  final String date;
+  final double price;
+
+  SMASimple(this.date, this.price,this.count);
 
 
 }
