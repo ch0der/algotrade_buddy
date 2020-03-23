@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:algotrade_buddy/models/index.dart';
 import 'package:algotrade_buddy/models/stockModel.dart';
+import 'package:algotrade_buddy/models/stock_intra_day.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'API_KEY.dart' show API_KEY;
 import 'package:http/http.dart' as http;
-import 'models/stockMode2.dart';
+import 'models/stockModel2.dart';
 import 'models/SMA.dart';
 
 class FirstAlgoBloc{
@@ -71,6 +72,12 @@ class FirstAlgoBloc{
 
   }
 
+  Future<IntraDay> callIntraDat() async{
+
+  }
+
+
+
 
 
 }
@@ -80,6 +87,15 @@ class SMASimple{
   final double price;
 
   SMASimple(this.date, this.price,this.count);
+
+
+}
+class IntraDayS{
+  final int count;
+  final String time;
+  final double price;
+
+  IntraDayS(this.count, this.time, this.price);
 
 
 }

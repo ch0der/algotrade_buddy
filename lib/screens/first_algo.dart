@@ -1,8 +1,9 @@
 import 'package:algotrade_buddy/first_algo_bloc.dart';
 import 'package:algotrade_buddy/models/details.dart';
+import 'package:algotrade_buddy/models/stock_intra_day.dart';
 import 'package:flutter/material.dart';
 
-import 'package:algotrade_buddy/models/stockMode2.dart';
+import 'package:algotrade_buddy/models/stockModel2.dart';
 import 'package:algotrade_buddy/models/SMA.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'dart:math' as math;
@@ -16,7 +17,7 @@ class _FirstAlgoState extends State<FirstAlgo> {
   FirstAlgoBloc bloc = FirstAlgoBloc();
 
   String dropDownDuration = 'daily';
-  String dropDownStock = 'MSFT';
+  String dropDownStock = 'TQQQ';
   String dropDownTimePeriod = '5';
   String dropDownSeriesType = 'close';
   String dropDownIndicator = 'SMA';
@@ -62,24 +63,14 @@ class _FirstAlgoState extends State<FirstAlgo> {
         StreamBuilder<Object>(
             stream: bloc.sma,
             builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Container(
-                  height: 300,
-                  child: charts.LineChart(
-                    _createSampleData(snapshot.data),
-                    animate: false,
-                    defaultInteractions: true,
-                  ),
-                );
-              } else
-                return Container(
-                  height: 300,
-                  child: charts.LineChart(
-                    _createSampleData(itemsTest),
-                    animate: false,
-                    defaultInteractions: true,
-                  ),
-                );
+              return Container(
+                height: 300,
+                child: charts.LineChart(
+                  _createSampleData(snapshot.hasData ? snapshot.data : itemsTest,snapshot.hasData ? snapshot.data : itemsTest ),
+                  animate: false,
+                  defaultInteractions: true,
+                ),
+              );
             }),
       ],
     );
@@ -201,7 +192,7 @@ class _FirstAlgoState extends State<FirstAlgo> {
             labelText: 'Stock',
           ),
           value: dropDownStock,
-          items: ["MSFT", "AAPL", "NFLX", "SBUX"]
+          items: ["TQQQ", "AAPL", "NFLX", "SBUX"]
               .map((String value) => DropdownMenuItem(
                     value: value,
                     child: Text(value),
@@ -215,8 +206,8 @@ class _FirstAlgoState extends State<FirstAlgo> {
         ));
   }
 
-  static List<charts.Series<SMASimple, int>> _createSampleData(
-      List<SMASimple> _list) {
+  static List<charts.Series<dynamic, int>> _createSampleData(
+      List<SMASimple> _list,List<IntraDayS>_list2) {
     final data = [
       SMASimple('43', 343, 1),
       SMASimple('47', 343, 2),
@@ -228,7 +219,13 @@ class _FirstAlgoState extends State<FirstAlgo> {
           colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
           domainFn: (SMASimple movement, _) => movement.count,
           measureFn: (SMASimple price, _) => price.price,
-          data: _list)
+          data: _list),
+      charts.Series<IntraDayS,int>(
+        id: 'Price',
+        domainFn: (IntraDayS movement,_) => movement.count,
+        measureFn: (IntraDayS price,_) => price.price,
+        data: _list2
+      ),
     ];
   }
 
