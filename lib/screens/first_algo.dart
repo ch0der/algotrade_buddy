@@ -26,6 +26,11 @@ class _FirstAlgoState extends State<FirstAlgo> {
     SMASimple('2', 1, 2),
     SMASimple('3', 3, 3)
   ];
+  List<IntraDayS> itemsTest2 = [
+    IntraDayS(1,'5',1),
+    IntraDayS(2,'15',4),
+    IntraDayS(3,'30',10),
+  ];
   int indexTest = 3;
 
   @override
@@ -63,10 +68,12 @@ class _FirstAlgoState extends State<FirstAlgo> {
         StreamBuilder<Object>(
             stream: bloc.sma,
             builder: (context, snapshot) {
+
+
               return Container(
                 height: 300,
                 child: charts.LineChart(
-                  _createSampleData(snapshot.hasData ? snapshot.data : itemsTest,snapshot.hasData ? snapshot.data : itemsTest ),
+                  _createSampleData(snapshot.hasData ? snapshot.data : itemsTest,snapshot.hasData ? itemsTest2: itemsTest2 ),
                   animate: false,
                   defaultInteractions: true,
                 ),
@@ -167,7 +174,7 @@ class _FirstAlgoState extends State<FirstAlgo> {
           value: dropDownTimePeriod,
           items: [
             "5",
-            "100",
+            "24",
             "200",
             "500",
           ]
@@ -256,7 +263,7 @@ class _FirstAlgoState extends State<FirstAlgo> {
         width: dropDownSize(),
         child: DropdownButtonFormField(
           decoration: InputDecoration(
-            labelText: 'Stock',
+            labelText: 'Indicator',
           ),
           value: dropDownIndicator,
           items: ["SMA"]

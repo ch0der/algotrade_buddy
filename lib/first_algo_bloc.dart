@@ -72,7 +72,7 @@ class FirstAlgoBloc{
 
   }
 
-  Future<IntraDay> callIntraDat() async{
+  Future<IntraDay> callIntraDay() async{
 
   }
 
